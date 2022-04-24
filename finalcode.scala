@@ -11,7 +11,7 @@ import org.apache.spark.sql.types.{IntegerType, DoubleType}
 val df=spark.read
  .format("csv")
  .option("header","true")
- .load("hdfs://10.128.0.16:8020/BigData/covid.csv")
+ .load("hdfs://xxxx:8020/FileAdress/covid.csv")
 val cleaned_DF = df.na.drop()
 
 val dataset = cleaned_DF.select(col("Ever in ICU"),
@@ -42,13 +42,14 @@ col("Age_index").cast(IntegerType),
 col("Source_index").cast(IntegerType),
 col("Outbreak_index").cast(IntegerType),
 col("Gender_index").cast(IntegerType))
+
 rankDf.show(10)
 
 
 val Array(trainingData, testData) = rankDf.randomSplit(Array(0.8, 0.2), 750)
 
 val assembler = new VectorAssembler()
- .setInputCols(Array("Age_vector","Source_vector","Outbreak_vector","Gender_vector","Age_index","Source_index","Outbreak_index","Gender_index"))
+ .setInputCols(Array("Age_index","Source_index","Outbreak_index","Gender_index"))
  .setOutputCol("assembled-features")
 
 val rf = new RandomForestClassifier()
@@ -82,12 +83,11 @@ val accuracy = evaluator.evaluate(predictions)
 println("Accuracy of the model = "+accuracy)
 
 predictions
- .select(col(""),
-col(""),
-col(""),
-col(""),
-col(""),
-col(""),
+ .select(col("ICU_index"),
+col("Age_index"),
+col("Source_index"),
+col("Outbreak_index"),
+col("Gender_index"))
  .write
  .format("csv")
- .save("hdfs://xxxxx:8020/BigData/covid/output/")
+ .save("hdfs://xxxx:8020/FileAddress/")
